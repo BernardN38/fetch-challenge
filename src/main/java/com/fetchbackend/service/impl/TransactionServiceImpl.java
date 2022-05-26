@@ -3,6 +3,7 @@ package com.fetchbackend.service.impl;
 import com.fetchbackend.entity.Transaction;
 import com.fetchbackend.entity.User;
 import com.fetchbackend.exception.FetchApiException;
+import com.fetchbackend.exception.ResourceNotFoundException;
 import com.fetchbackend.payload.TransactionDto;
 import com.fetchbackend.payload.TransactionResponse;
 import com.fetchbackend.repository.TransactionRepository;
@@ -43,6 +44,14 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setUser(user);
         Transaction newTransaction = transactionRepository.save(transaction);
         return mapToDto(newTransaction);
+    }
+
+    @Override
+    public TransactionDto updateTransaction(TransactionDto transactionDto, Long userId, Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId).orElseThrow(() -> new ResourceNotFoundException("Transaction", "transactionId", transactionId));
+        mapper.map(transactionDto, transaction);
+        Transaction updatedTransaction = transactionRepository.save(transaction);
+        return mapToDto(updatedTransaction);
     }
 
     private TransactionDto mapToDto(Transaction transaction) {

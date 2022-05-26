@@ -5,15 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
 
 @NoArgsConstructor
 @Setter
 @Getter
 @Data
 public class SpendResponse {
-    private List<PointsDto> deductions = new ArrayList<>();
+    private HashMap<String, Integer> deductions = new HashMap<>();
     private Date timestamp = new Date();
 }

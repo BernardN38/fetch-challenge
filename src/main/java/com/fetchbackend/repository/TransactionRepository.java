@@ -12,19 +12,16 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    @Query(value = "select exists(select 1 from transaction where user_id = ?1)", nativeQuery = true)
-    boolean existsByUserId(Long userId);
-
-    List<Transaction> findByUserId(Long userId);
-
     Page<Transaction> findPageByUserId(Long userId, Pageable pageable);
 
-    @Query(value = "select * from transaction where user_id = ?1 ORDER BY timestamp", nativeQuery = true)
-    List<Transaction> findOrderedByUserId(Long userId);
+    @Query(value = "SELECT t FROM Transaction t  WHERE t.user.id = ?1 AND t.points > 0 ORDER BY t.created")
+//    @Query(value = "SELECT * FROM transaction WHERE user_id = ?1 AND points > 0 ORDER BY created LIMIT 1", nativeQuery = true)
+    List<Transaction> findOldestByUserId(Long userId, Pageable pageable);
 
-    @Query(value = "select * from transaction where user_id = ?1 AND points > 0 ORDER BY timestamp LIMIT 1", nativeQuery = true)
-    Transaction findOldestByUserId(Long userId);
+    @Query(value = "SELECT t FROM Transaction t  WHERE t.user.id = ?1 AND t.points > 0 AND t.created > ?2 ORDER BY t.created")
+//    @Query(value = "SELECT * FROM transaction WHERE user_id = ?1 AND points > 0 and timestamp > ?2 ORDER BY created LIMIT 1", nativeQuery = true)
+    List<Transaction> findNextOldest(Long id, Date timestamp, Pageable pageable);
 
-    @Query(value = "select * from transaction where user_id = ?1 AND points > 0 and timestamp > ?2 ORDER BY timestamp LIMIT 1", nativeQuery = true)
-    Transaction findNextOldest(Long id, Date timestamp);
+    @Query(value = "SELECT NEW Transaction(t.payer,SUM(t.points)) FROM Transaction t WHERE t.user.id = ?1 GROUP BY t.payer")
+    List<Transaction> findSumPointsPayerByUserId(Long userId);
 }

@@ -11,13 +11,12 @@ import com.fetchbackend.repository.UserRepository;
 import com.fetchbackend.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,48 +29,59 @@ public class UserServiceImpl implements UserService {
     private ModelMapper mapper;
 
     @Override
-    public List<PointsDto> getUserPointsByPayer(Long userId) {
+    public Map<String, Integer> getUserPointsByPayer(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
-        return mapToListPointsDto(user.getTransactions());
+        List<Transaction> transactions = transactionRepository.findSumPointsPayerByUserId(userId);
+        System.out.println(transactions);
+        return transactions.stream().collect(Collectors.toMap(Transaction::getPayer, Transaction::getPoints));
     }
 
     @Override
     public SpendResponse spendUserPoints(Long userId, int pointsToSpend) {
         //check if user has enough points for request -> throw Error with message if not
-        int userTotalPoints = userRepository.getUserPointsTotal(userId);
+        Transaction userTransactionPoints = userRepository.getUserPointsTotal(userId).orElseThrow(() -> new FetchApiException(HttpStatus.NOT_FOUND, "User does not have any points avialible"));
+        int userTotalPoints = userTransactionPoints.getPoints();
         int remainingPointsToDeduct = pointsToSpend;
+        System.out.println(pointsToSpend);
         if (remainingPointsToDeduct > userTotalPoints) {
             throw new FetchApiException(HttpStatus.BAD_REQUEST, "Not enough points. Points available: " + userTotalPoints);
         }
 
         //find oldest points transaction for user
-        Transaction oldestMatch = transactionRepository.findOldestByUserId(userId);
+        Transaction oldestMatch = transactionRepository.findOldestByUserId(userId, PageRequest.of(0, 1)).get(0);
 
         //keep track of deductions for response
-        List<PointsDto> deductionTracker = new ArrayList<>();
+        HashMap<String, Integer> deductionTracker = new HashMap<String, Integer>();
 
         // run until points remaining is 0
         while (remainingPointsToDeduct > 0) {
-            //create variable of current transaction points for code readability
+            //create variable of current transaction data for code readability
             int transactionPoints = oldestMatch.getPoints();
-
+            String transactionPayer = oldestMatch.getPayer();
             //if current transaction satisfies all points remaining
             if (transactionPoints >= remainingPointsToDeduct) {
                 //add to tracker
-                deductionTracker.add(new PointsDto(oldestMatch.getPayer(), -remainingPointsToDeduct));
-
-                // update remain points
-                remainingPointsToDeduct -= transactionPoints;
+                if (deductionTracker.containsKey(transactionPayer)) {
+                    deductionTracker.put(transactionPayer, deductionTracker.get(transactionPayer) - remainingPointsToDeduct);
+                } else {
+                    deductionTracker.put(transactionPayer, -remainingPointsToDeduct);
+                }
 
                 //update database to reflect deduction
                 oldestMatch.setPoints(transactionPoints - remainingPointsToDeduct);
                 transactionRepository.save(oldestMatch);
+
+                // update remain points
+                remainingPointsToDeduct = 0;
             }
             // if current transaction partially satisfies of points remaining
             else if (transactionPoints > 0) {
                 //add to tracker
-                deductionTracker.add(new PointsDto(oldestMatch.getPayer(), -transactionPoints));
-
+                if (deductionTracker.containsKey(transactionPayer)) {
+                    deductionTracker.put(transactionPayer, deductionTracker.get(transactionPayer) - transactionPoints);
+                } else {
+                    deductionTracker.put(transactionPayer, -transactionPoints);
+                }
                 //update remaining points
                 remainingPointsToDeduct -= transactionPoints;
 
@@ -81,7 +91,7 @@ public class UserServiceImpl implements UserService {
             }
             // if current transaction has no points available get next oldest transaction from database
             else {
-                oldestMatch = transactionRepository.findNextOldest(userId, oldestMatch.getTimestamp());
+                oldestMatch = transactionRepository.findNextOldest(userId, oldestMatch.getCreated(), PageRequest.of(0, 1)).get(0);
             }
         }
         //create response
@@ -90,9 +100,6 @@ public class UserServiceImpl implements UserService {
         return spendResponse;
     }
 
-    private boolean checkUserPointsNotExists(Long userId) {
-        return !transactionRepository.existsByUserId(userId);
-    }
 
     private List<PointsDto> mapToListPointsDto(Set<Transaction> transactions) {
         HashMap<String, Integer> payers = new HashMap<String, Integer>();

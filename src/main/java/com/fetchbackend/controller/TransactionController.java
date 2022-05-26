@@ -28,7 +28,7 @@ public class TransactionController {
     }
 
 
-    // create a transaction
+    // create transaction
     @PostMapping("{userId}/transactions")
     public ResponseEntity<TransactionDto> createTransaction(@Valid @RequestBody TransactionDto transactionDto, @PathVariable Long userId) {
         TransactionDto responseDto;
@@ -36,5 +36,10 @@ public class TransactionController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
+    //update transaction
+    @PutMapping("{userId}/transactions/{transactionId}")
+    public ResponseEntity<TransactionDto> updateTransaction(@Valid @RequestBody TransactionDto transactionDto, @PathVariable Long userId, @PathVariable Long transactionId) {
+        return ResponseEntity.ok().body(transactionService.updateTransaction(transactionDto, userId, transactionId));
+    }
 
 }

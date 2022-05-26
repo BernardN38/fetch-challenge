@@ -8,4 +8,6 @@ public interface TransactionService {
 
     TransactionDto createTransaction(TransactionDto transactionDto, Long userId);
 
+    TransactionDto updateTransaction(TransactionDto transactionDto, Long userId, Long transactionId);
+
 }

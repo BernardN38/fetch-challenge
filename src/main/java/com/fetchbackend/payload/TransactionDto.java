@@ -1,12 +1,16 @@
 package com.fetchbackend.payload;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.util.Date;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class TransactionDto {
     @NotEmpty(message = "Payer Should not be null or empty")
