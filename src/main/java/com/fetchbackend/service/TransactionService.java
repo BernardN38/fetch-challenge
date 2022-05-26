@@ -1,8 +1,11 @@
 package com.fetchbackend.service;
 
 import com.fetchbackend.payload.TransactionDto;
-import org.springframework.http.ResponseEntity;
+import com.fetchbackend.payload.TransactionResponse;
 
 public interface TransactionService {
-    TransactionDto createTransaction(TransactionDto transactionDto);
+    TransactionResponse getUserTransactions(int pageNo, int pageSize, String sortBy, String sortDir, Long userId);
+
+    TransactionDto createTransaction(TransactionDto transactionDto, Long userId);
+
 }

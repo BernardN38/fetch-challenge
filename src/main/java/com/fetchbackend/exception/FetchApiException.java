@@ -1,9 +1,10 @@
 package com.fetchbackend.exception;
+
 import org.springframework.http.HttpStatus;
 
 public class FetchApiException extends RuntimeException {
-    private HttpStatus status;
-    private String message;
+    private final HttpStatus status;
+    private final String message;
 
     public FetchApiException(HttpStatus status, String message) {
         this.status = status;
