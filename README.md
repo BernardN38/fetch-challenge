@@ -20,13 +20,17 @@ To view or demo the live application simply click [here](https://young-brook-142
 
 # Installation
 
+This app requires the installation of Java. Documentation can be found here [here](https://www.java.com/en/download/help/download_options.html)
+This app also requires maven to get all required dependencies. Documentation can be found[here](https://maven.apache.org/install.html)
+
+
 The following set of instructions will allow you to clone the application and run it locally on your device. Note that all of the following lines of code are ran in the terminal.
 
 1. From within the terminal, `cd` into the directory of your choice and run the following command:
 
-    ```
-    git clone https://github.com/BernardN38/fetch-challenge
-    ```
+        ```
+        git clone https://github.com/BernardN38/fetch-challenge
+         ```
 
 2. `cd` into the the application: 
 	
@@ -46,7 +50,8 @@ The following set of instructions will allow you to clone the application and ru
 	mvn spring-boot:run
 	```
 	
-5. Note that the app will open up on local host 5000 (http://localhost:5000/). Swagger documentation can be seen at http://localhost:5000/swagger-ui.html
+5. Note that the app will open up on local host 5000 (http://localhost:5000/). 
+6. Swagger documentation can be seen at http://localhost:5000/swagger-ui.html
 
 	
 [(Back to top)](#table-of-contents)
