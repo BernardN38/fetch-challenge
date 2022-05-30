@@ -2,8 +2,8 @@
 
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/bernardn38/fetch-challenge)
-![Lines of code](https://img.shields.io/tokei/lines/github/bernardn38/business-pages-mobile)
-![GitHub language count](https://img.shields.io/github/languages/count/bernardn38/business-pages-mobile?color=red)
+![Lines of code](https://img.shields.io/tokei/lines/github/bernardn38/fetch-challenge)
+![GitHub language count](https://img.shields.io/github/languages/count/bernardn38/fetch-challenge?color=red)
 
 This is a backend challenge for Fetch.
 
