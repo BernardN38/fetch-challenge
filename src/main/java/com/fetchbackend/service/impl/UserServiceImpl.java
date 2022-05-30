@@ -4,15 +4,16 @@ import com.fetchbackend.entity.Transaction;
 import com.fetchbackend.entity.User;
 import com.fetchbackend.exception.FetchApiException;
 import com.fetchbackend.exception.ResourceNotFoundException;
-import com.fetchbackend.payload.PointsDto;
-import com.fetchbackend.payload.SpendResponse;
+import com.fetchbackend.payload.*;
 import com.fetchbackend.repository.TransactionRepository;
 import com.fetchbackend.repository.UserRepository;
 import com.fetchbackend.service.UserService;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,21 @@ public class UserServiceImpl implements UserService {
         return transactions.stream().collect(Collectors.toMap(Transaction::getPayer, Transaction::getPoints));
     }
 
+    @Override
+    public UserResponse getAllUsers(int pageNo, int pageSize, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        PageRequest pageable = PageRequest.of(pageNo, pageSize, sort);
+        Page<User> users = userRepository.findAll(pageable);
+
+        return mapToUserResponse(users);
+    }
+    @Override
+    public UserPublicDto createUser(UserDto userDto) {
+        User user = mapper.map(userDto,User.class);
+        User newUser = userRepository.save(user);
+        return mapper.map(newUser, UserPublicDto.class);
+    }
 
     @Override
     public SpendResponse spendUserPoints(Long userId, int pointsToSpend) {
@@ -131,5 +147,25 @@ public class UserServiceImpl implements UserService {
             response.add(pointsDto);
         });
         return response;
+    }
+
+
+    private UserResponse mapToUserResponse(Page<User> users){
+        UserResponse userResponse = new UserResponse();
+        userResponse.setContent(users.stream().map(user -> {
+            UserPublicDto userPublicDto = new UserPublicDto();
+            userPublicDto.setUsername(user.getUsername());
+            userPublicDto.setId(user.getId());
+            if (transactionRepository.existsByUserId(user.getId())) {
+                userPublicDto.setPointsAvailable(userRepository.getUserPointsTotal(user.getId()).get().getPoints());
+            }
+            return userPublicDto;
+        }).toList());
+        userResponse.setPageNo(users.getNumber());
+        userResponse.setPageSize(users.getSize());
+        userResponse.setTotalElements(users.getTotalElements());
+        userResponse.setTotalPages(users.getTotalPages());
+        userResponse.setLast(users.isLast());
+        return userResponse;
     }
 }

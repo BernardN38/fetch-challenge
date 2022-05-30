@@ -14,6 +14,7 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Page<Transaction> findPageByUserId(Long userId, Pageable pageable);
 
+
     @Query(value = "SELECT t FROM Transaction t  WHERE t.user.id = ?1 AND t.points > 0 ORDER BY t.created")
 //    @Query(value = "SELECT * FROM transaction WHERE user_id = ?1 AND points > 0 ORDER BY created LIMIT 1", nativeQuery = true)
     Page<Transaction> findOldestByUserId(Long userId, Pageable pageable);
@@ -24,5 +25,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query(value = "SELECT NEW Transaction(t.payer,SUM(t.points)) FROM Transaction t WHERE t.user.id = ?1 GROUP BY t.payer")
     List<Transaction> findSumPointsPayerByUserId(Long userId);
+
+    boolean existsByUserId(Long userId);
 
 }
