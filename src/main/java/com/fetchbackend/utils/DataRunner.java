@@ -48,12 +48,6 @@ public class DataRunner implements CommandLineRunner {
         testTrans2.setUser(testUser);
         transactionRepository.save(testTrans2);
 
-//        Transaction testTrans3 = new Transaction();
-//        testTrans3.setPayer("DANNON");
-//        testTrans3.setPoints(-200);
-//        testTrans3.setUser(testUser);
-//        transactionRepository.save(testTrans3);
-
         Transaction testTrans4 = new Transaction();
         testTrans4.setPayer("MILLER COORS");
         testTrans4.setPoints(10000);

@@ -9,6 +9,7 @@ import com.fetchbackend.payload.SpendResponse;
 import com.fetchbackend.repository.TransactionRepository;
 import com.fetchbackend.repository.UserRepository;
 import com.fetchbackend.service.UserService;
+import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -28,13 +30,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper mapper;
 
+    public UserServiceImpl(TransactionRepository transactionRepository, UserRepository userRepository) {
+        this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
+    }
+
+    public UserServiceImpl(TransactionRepository transactionRepository) {
+        this.transactionRepository = transactionRepository;
+    }
+
     @Override
     public Map<String, Integer> getUserPointsByPayer(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
         List<Transaction> transactions = transactionRepository.findSumPointsPayerByUserId(userId);
-        System.out.println(transactions);
         return transactions.stream().collect(Collectors.toMap(Transaction::getPayer, Transaction::getPoints));
     }
+
 
     @Override
     public SpendResponse spendUserPoints(Long userId, int pointsToSpend) {
@@ -42,16 +53,16 @@ public class UserServiceImpl implements UserService {
         Transaction userTransactionPoints = userRepository.getUserPointsTotal(userId).orElseThrow(() -> new FetchApiException(HttpStatus.NOT_FOUND, "User does not have any points avialible"));
         int userTotalPoints = userTransactionPoints.getPoints();
         int remainingPointsToDeduct = pointsToSpend;
-        System.out.println(pointsToSpend);
+
         if (remainingPointsToDeduct > userTotalPoints) {
             throw new FetchApiException(HttpStatus.BAD_REQUEST, "Not enough points. Points available: " + userTotalPoints);
         }
 
         //find oldest points transaction for user
-        Transaction oldestMatch = transactionRepository.findOldestByUserId(userId, PageRequest.of(0, 1)).get(0);
+        Transaction oldestMatch = transactionRepository.findOldestByUserId(userId, PageRequest.of(0, 1)).getContent().get(0);
 
         //keep track of deductions for response
-        HashMap<String, Integer> deductionTracker = new HashMap<String, Integer>();
+        Map<String, Integer> deductionTracker = new HashMap<String, Integer>();
 
         // run until points remaining is 0
         while (remainingPointsToDeduct > 0) {
@@ -91,18 +102,18 @@ public class UserServiceImpl implements UserService {
             }
             // if current transaction has no points available get next oldest transaction from database
             else {
-                oldestMatch = transactionRepository.findNextOldest(userId, oldestMatch.getCreated(), PageRequest.of(0, 1)).get(0);
+                oldestMatch = transactionRepository.findNextOldest(userId, oldestMatch.getCreated(), PageRequest.of(0, 1)).getContent().get(0);
             }
         }
         //create response
         SpendResponse spendResponse = new SpendResponse();
-        spendResponse.setDeductions(deductionTracker);
+        spendResponse.setPayerDeductions(deductionTracker);
         return spendResponse;
     }
 
 
     private List<PointsDto> mapToListPointsDto(Set<Transaction> transactions) {
-        HashMap<String, Integer> payers = new HashMap<String, Integer>();
+        Map<String, Integer> payers = new HashMap<String, Integer>();
         transactions.forEach(transaction -> {
                     String key = transaction.getPayer();
                     if (payers.containsKey(key)) {

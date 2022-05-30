@@ -28,6 +28,11 @@ public class TransactionServiceImpl implements TransactionService {
     @Autowired
     private ModelMapper mapper;
 
+    public TransactionServiceImpl(UserRepository userRepository, TransactionRepository transactionRepository, ModelMapper mapper) {
+        this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
+    }
+
     public TransactionResponse getUserTransactions(int pageNo, int pageSize, String sortBy, String sortDir, Long userId) {
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
