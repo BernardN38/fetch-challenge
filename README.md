@@ -53,6 +53,9 @@ The following set of instructions will allow you to clone the application and ru
 5. Note that the app will open up on local host 5000 (http://localhost:5000/). 
 6. Swagger documentation can be seen at http://localhost:5000/swagger-ui.html
 
+Notes.
+One user with id 1 has been pre-populated with 4 transactions for testing purposes. 
+
 	
 [(Back to top)](#table-of-contents)
 
