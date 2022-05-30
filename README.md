@@ -68,7 +68,7 @@ One user with id 1 has been pre-populated with 4 transactions for testing purpos
 
 <img src="https://raw.githubusercontent.com/devicons/devicon/1119b9f84c0290e0f0b38982099a2bd027a48bf1/icons/java/java-original.svg" alt="Java Logo" height="50px" width="50px"><img src="https://raw.githubusercontent.com/devicons/devicon/1119b9f84c0290e0f0b38982099a2bd027a48bf1/icons/spring/spring-original.svg" alt="Spring Logo" height="50px" width="50px">
 
-This app also makes use of a SQL like in memory database called H2.
+This app was creatd using the Java framework Spring boot with an H2 in memory database.
 
 
 
