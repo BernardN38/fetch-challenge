@@ -6,7 +6,6 @@ import com.fetchbackend.repository.TransactionRepository;
 import com.fetchbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,20 +17,18 @@ public class DataRunner implements CommandLineRunner {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
         User testUser = new User();
         testUser.setUsername("tester1");
-        testUser.setPassword(passwordEncoder.encode("password"));
+        testUser.setPassword("password");
         User testUser2 = new User();
         testUser2.setUsername("tester2");
-        testUser2.setPassword(passwordEncoder.encode("password"));
+        testUser2.setPassword("password");
         User testUser3 = new User();
         testUser3.setUsername("tester3");
-        testUser3.setPassword(passwordEncoder.encode("password"));
+        testUser3.setPassword("password");
 
 
         userRepository.saveAll(List.of(testUser, testUser2, testUser3));
