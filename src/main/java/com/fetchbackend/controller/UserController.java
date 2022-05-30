@@ -26,7 +26,7 @@ public class UserController {
     private TransactionRepository transactionRepository;
 
     @GetMapping
-    public UserResponse getUserPoints(@RequestParam(value = "pageNo", defaultValue = AppConstants.DEFUALT_PAGE_NUMBER, required = false) int pageNo,
+    public UserResponse getUsers(@RequestParam(value = "pageNo", defaultValue = AppConstants.DEFUALT_PAGE_NUMBER, required = false) int pageNo,
                                             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFUALT_PAGE_SIZE, required = false) int pageSize,
                                             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
                                             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir) {
