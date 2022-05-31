@@ -9,6 +9,7 @@ This is a backend challenge for Fetch.
 
 # Demo-Preview
 To view or demo the live application simply click [here](https://young-brook-14242.herokuapp.com/swagger-ui/index.html).
+(Due to being hosted on heroku first load may take longer than usual)
 
 # Table of contents
 - [Description](#Fetch)
